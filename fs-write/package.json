@@ -1,0 +1,12 @@
+{
+  "name": "fs-write",
+  "version": "1.0.0",
+  "main": "index.js",
+  "scripts": {
+    "start": "node fs_write.js"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "description": ""
+}

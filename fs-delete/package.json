@@ -1,0 +1,12 @@
+{
+  "name": "fs-delete",
+  "version": "1.0.0",
+  "main": "index.js",
+  "scripts": {
+    "start": "node fs_delete.js"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "description": ""
+}

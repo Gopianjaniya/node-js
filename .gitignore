@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 # ============================
 # Node.js & JavaScript
 # ============================
@@ -60,3 +61,7 @@ coverage/
 # Ignore docker and build artifacts
 docker-compose.override.yml
 Dockerfile.local
+=======
+node_modules
+.env
+>>>>>>> 8998931 (fix)
