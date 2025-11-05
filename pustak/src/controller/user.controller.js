@@ -1,6 +1,9 @@
+const { default: mongoose } = require("mongoose");
+const { generateToken } = require("../middleware/token");
+const OtpModel = require("../model/otp.model");
 const { UserModel } = require("../model/user.model");
-const bcrypt = require('bcrypt');
-const { encryptPassword, comparePassword } = require("../utils/helper");
+const { encryptPassword, comparePassword, generateOtp } = require("../utils/helper");
+const { wellComeMessage } = require("../utils/nodemailer");
 const register = async (req, res) => {
     try {
         // object de- structure
@@ -35,10 +38,18 @@ const register = async (req, res) => {
         //  delete the password from user object
         const userWithOutPasswordUser = user.toObject();
         delete userWithOutPasswordUser.password;
+        const otp = generateOtp();
+        await wellComeMessage(email, username, otp)
+        console.log("///// 000000000000000")
 
-        return res.status(201).json({ success: true, statusCode: 201, message: "user successfully registered ..", data: userWithOutPasswordUser })
+        const isOtp = await OtpModel.create({ otp: otp.toString(), userId: mongoose.Schema.Types.ObjectId(user._id) });
+        console.log("///// .............", isOtp)
+        if (isOtp) return res.status(201).json({ success: true, statusCode: 201, message: `user successfully registered & otp sent to your email ${email} !`, })
+
+        return res.status(201).json({ success: false, statusCode: 500, message: `Registration failed .. sent to failed otp`, })
 
     } catch (error) {
+        console.log("Error", error);
 
     }
 }
@@ -60,8 +71,10 @@ const login = async (req, res) => {
             const isPasswordTrue = comparePassword(password, user.password);
             const deletePassword = user.toObject()
             delete deletePassword.password
+            const token = generateToken(email);
+
             if (isPasswordTrue)
-                return res.status(200).json({ success: true, statusCode: 200, message: "Login In Successfully", data: deletePassword });
+                return res.status(200).json({ success: true, statusCode: 200, message: "Login In Successfully", data: deletePassword, accessToken: token });
             else
                 return res.status(400).json({ success: false, statusCode: 400, errorMsg: "Bad Request", message: "Invalid password" });
 
