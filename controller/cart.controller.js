@@ -117,17 +117,15 @@ exports.deleteItemFromCart = async (req, res) => {
       .json({ message: "Internal server error", errMsg: error.message });
   }
 };
-
+// =================== increase qty
 exports.increaseQYT = async (req, res) => {
   try {
     const { userId, qty, bookId } = req.body;
-    const book = await BookModel.findById( bookId );
+    const book = await BookModel.findById(bookId);
 
     const cart = await cartModel.findOne({ userId });
-    console.log("cart..........", cart);
 
     const index = cart.item.findIndex((i) => i.bookId.toString() === bookId);
-    console.log("index..........", index);
 
     if (index === -1) {
       return res.status(400).json({ message: "not found...." });
@@ -136,11 +134,9 @@ exports.increaseQYT = async (req, res) => {
 
     cart.item[index].total = cart.item[index].qty * book.price;
 
-    
     cart.total = cart.item.reduce((sum, i) => sum + i.total, 0);
 
     await cart.save();
-    console.log("cart.total..........", cart.total);
 
     return res.status(201).json({ message: "increaseQYT." });
   } catch (error) {
@@ -150,8 +146,34 @@ exports.increaseQYT = async (req, res) => {
       .json({ message: "Internal server error", errMsg: error.message });
   }
 };
+
+// ===================== descrease qty
 exports.decreaseQYT = async (req, res) => {
   try {
+    const { userId, qty, bookId } = req.body;
+
+    const book = await BookModel.findById(bookId);
+    console.log("book.......",book);
+    
+
+    const cart = await cartModel.findOne({ userId });
+    console.log("cart.......", cart);
+
+    const index = cart.item.findIndex((i) => i.bookId.toString() === bookId);
+    console.log("index.......", index);
+
+    if (index === -1) {
+     res.status(400).json({ message: "not found...." });
+    }
+
+    cart.item[index].qty -= qty;
+    cart.item[index].total = cart.item[index].qty * book.price;
+
+    cart.total = cart.item.reduce((sum, i) => sum + i.total, 0);
+    console.log("cart.total.......", cart.total);
+
+
+    await cart.save();
     return res.status(201).json({ message: "decreaseQYT." });
   } catch (error) {
     console.error("decreaseQYT", error.message);
@@ -160,10 +182,15 @@ exports.decreaseQYT = async (req, res) => {
       .json({ message: "Internal server error", errMsg: error.message });
   }
 };
-
+//========================= get carts
 exports.getCart = async (req, res) => {
   try {
-    return res.status(201).json({ message: "getCart." });
+    const {userId}  = req.body
+
+    const cart = await cartModel.findOne({userId})
+    
+    return res.status(200).json({success:true,carts:cart.item})
+ 
   } catch (error) {
     console.error("getCart", error.message);
     return res
